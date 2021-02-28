@@ -2,7 +2,7 @@
 
 [![](https://jitpack.io/v/shubham-gupta-16/Super-Bottom-Navigation.svg)](https://jitpack.io/#shubham-gupta-16/Super-Bottom-Navigation)
 
-This is best Bottom Navigation for Android.
+This is the best Bottom Navigation for Android.
 
 ## Gradle
 
