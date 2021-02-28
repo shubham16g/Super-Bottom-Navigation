@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SuperBottomNavigation">
+        <attr name="menu_res" format="reference"/>
+        <attr name="icon_size" format="dimension"/>
+        <attr name="icon_color" format="color"/>
+        <attr name="text_color" format="color"/>
+        <attr name="badge_background_color" format="color"/>
+        <attr name="badge_text_color" format="color"/>
+        <attr name="text_icon_gap" format="dimension"/>
+        <attr name="icon_non_active_alpha" format="float"/>
+        <attr name="icon_active_alpha" format="float"/>
+        <attr name="anim_duration" format="integer"/>
+    </declare-styleable>
+</resources>

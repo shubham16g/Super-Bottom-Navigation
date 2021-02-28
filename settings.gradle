@@ -1,0 +1,3 @@
+include ':SuperBottomNavigation'
+include ':app'
+rootProject.name = "SuperBottomNavSample"

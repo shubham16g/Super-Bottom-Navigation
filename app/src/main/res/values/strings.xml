@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SuperBottomNavSample</string>
+    <string name="add_to_cart">Add To Cart</string>
+    <string name="home">Home</string>
+    <string name="offers">Offers</string>
+    <string name="favorite">Favorite</string>
+    <string name="cart">Cart</string>
+</resources>
