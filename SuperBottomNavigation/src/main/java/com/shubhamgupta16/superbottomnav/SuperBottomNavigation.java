@@ -363,7 +363,7 @@ public class SuperBottomNavigation extends RelativeLayout {
         LayoutParams tvParams = new LayoutParams(LayoutParams.WRAP_CONTENT, dpToPx(16));
         tvParams.setMargins(dpToPx(15), dpToPx(-8), 0, 0);
         tv.setPadding(dpToPx(3), 0, dpToPx(3), dpToPx(1));
-        tv.setVisibility(INVISIBLE);
+        tv.setAlpha(0);
         tv.setLayoutParams(tvParams);
         tv.setMinWidth(dpToPx(16));
         tv.setGravity(Gravity.CENTER);
@@ -397,37 +397,32 @@ public class SuperBottomNavigation extends RelativeLayout {
         RelativeLayout layout = getItemLayout(position);
         TextView badge = (TextView) layout.getChildAt(2);
         if (value > 0) {
-            if (badge.getVisibility() == INVISIBLE)
-                badge.setVisibility(VISIBLE);
-
             badge.setAlpha(1);
+            String text;
             if (value < 100)
-                badge.setText(String.valueOf(value));
+                text = String.valueOf(value);
             else
-                badge.setText("99+");
-            if (animation)
-                scaleView(badge, 1.3f, 1, 4, 200);
-            else {
-                badge.setScaleX(1);
-                badge.setScaleY(1);
-            }
+                text = "99+";
+            if (animation && !badge.getText().toString().equals(text))
+                scaleView(badge, 1, 1.3f, 4, 200);
+            badge.setText(text);
         } else {
 //            badge.setAlpha(0);
-            if (animation)
-                scaleView(badge, 0, 1, 1, 200);
+            if (animation && !badge.getText().toString().isEmpty())
+                scaleView(badge, 1, 0, 1, 200);
             else {
-                badge.setScaleX(0);
-                badge.setScaleY(0);
+                badge.setAlpha(0);
             }
+            badge.setText("");
         }
     }
 
     public void scaleView(final View v, float from, float to, int c, int dur) {
         final int[] count = {c};
-        final ScaleAnimation fade_out = new ScaleAnimation(from, to, from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        final ScaleAnimation fade_out = new ScaleAnimation(to, from, to, from, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         fade_out.setDuration(dur);
         fade_out.setFillAfter(true);
-        final ScaleAnimation fade_in = new ScaleAnimation(to, from, to, from, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        final ScaleAnimation fade_in = new ScaleAnimation(from, to, from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         fade_in.setDuration(dur);
         fade_in.setFillAfter(true);
         fade_in.setAnimationListener(new Animation.AnimationListener() {
