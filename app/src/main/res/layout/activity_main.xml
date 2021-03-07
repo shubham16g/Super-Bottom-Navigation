@@ -7,11 +7,19 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/addToCart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:onClick="addOneMoreToCart"
         android:text="@string/add_to_cart"/>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/addToCart"
+        android:onClick="removeAllFromCart"
+        android:text="@string/remove_all"/>
 
 
     <com.shubhamgupta16.superbottomnav.SuperBottomNavigation

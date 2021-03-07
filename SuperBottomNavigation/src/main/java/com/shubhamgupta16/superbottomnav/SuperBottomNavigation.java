@@ -137,7 +137,6 @@ public class SuperBottomNavigation extends RelativeLayout {
     }
 
 
-
     private LinearLayout linearLayout;
     private View view;
     private List<Integer> widthList;
@@ -379,7 +378,11 @@ public class SuperBottomNavigation extends RelativeLayout {
     }
 
     public void setBadge(int id, int value) {
-        setBadge(id, value, true);
+        setBadge(id, value, false);
+    }
+
+    public void setBadgeToPosition(int position, int value) {
+        setBadgeToPosition(position, value, false);
     }
 
     public void setBadge(int id, int value, boolean animate) {
@@ -388,9 +391,7 @@ public class SuperBottomNavigation extends RelativeLayout {
             setBadgeToPosition(pos, value, animate);
     }
 
-    public void setBadgeToPosition(int position, int value) {
-        setBadgeToPosition(position, value, true);
-    }
+
     @SuppressLint("SetTextI18n")
     public void setBadgeToPosition(int position, int value, boolean animation) {
         RelativeLayout layout = getItemLayout(position);
@@ -398,24 +399,36 @@ public class SuperBottomNavigation extends RelativeLayout {
         if (value > 0) {
             if (badge.getVisibility() == INVISIBLE)
                 badge.setVisibility(VISIBLE);
+
+            badge.setAlpha(1);
             if (value < 100)
                 badge.setText(String.valueOf(value));
             else
                 badge.setText("99+");
             if (animation)
-                scaleView(badge);
+                scaleView(badge, 1.3f, 1, 4, 200);
+            else {
+                badge.setScaleX(1);
+                badge.setScaleY(1);
+            }
         } else {
-            badge.setVisibility(INVISIBLE);
+//            badge.setAlpha(0);
+            if (animation)
+                scaleView(badge, 0, 1, 1, 200);
+            else {
+                badge.setScaleX(0);
+                badge.setScaleY(0);
+            }
         }
     }
 
-    public void scaleView(final View v) {
-        final int[] count = {2};
-        final ScaleAnimation fade_out = new ScaleAnimation(1.3f, 1f, 1.3f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        fade_out.setDuration(220);
+    public void scaleView(final View v, float from, float to, int c, int dur) {
+        final int[] count = {c};
+        final ScaleAnimation fade_out = new ScaleAnimation(from, to, from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        fade_out.setDuration(dur);
         fade_out.setFillAfter(true);
-        final ScaleAnimation fade_in = new ScaleAnimation(1f, 1.3f, 1f, 1.3f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        fade_in.setDuration(200);
+        final ScaleAnimation fade_in = new ScaleAnimation(to, from, to, from, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        fade_in.setDuration(dur);
         fade_in.setFillAfter(true);
         fade_in.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -425,7 +438,10 @@ public class SuperBottomNavigation extends RelativeLayout {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                v.startAnimation(fade_out);
+                if (count[0] > 1) {
+                    v.startAnimation(fade_out);
+                    count[0]--;
+                }
             }
 
             @Override

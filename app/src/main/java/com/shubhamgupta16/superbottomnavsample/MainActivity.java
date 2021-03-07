@@ -34,6 +34,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void addOneMoreToCart(View view) {
         cartCount++;
-        superBottomNav.setBadge(R.id.action_cart, cartCount);
+        superBottomNav.setBadge(R.id.action_cart, cartCount, true);
+    }
+
+    public void removeAllFromCart(View view) {
+        cartCount = 0;
+        superBottomNav.setBadgeToPosition(3, cartCount, true);
     }
 }

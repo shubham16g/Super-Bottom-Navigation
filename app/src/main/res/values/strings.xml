@@ -5,4 +5,5 @@
     <string name="offers">Offers</string>
     <string name="favorite">Favorite</string>
     <string name="cart">Cart</string>
+    <string name="remove_all">Clear Cart</string>
 </resources>
