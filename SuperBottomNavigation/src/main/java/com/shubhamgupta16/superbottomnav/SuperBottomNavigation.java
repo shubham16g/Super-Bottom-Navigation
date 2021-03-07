@@ -235,6 +235,15 @@ public class SuperBottomNavigation extends RelativeLayout {
         });
     }
 
+
+    public int getActiveItemPosition(){
+        return lastActive;
+    }
+
+    public void setItemActiveToPosition(int pos){
+        selectItem(getItemLayout(pos), pos, animDuration);
+    }
+
     private void selectItem(RelativeLayout layout, int pos, int animDur) {
         deselectLastSelectedItem(pos);
 
