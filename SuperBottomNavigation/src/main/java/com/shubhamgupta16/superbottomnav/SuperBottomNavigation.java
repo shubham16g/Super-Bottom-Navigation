@@ -388,6 +388,9 @@ public class SuperBottomNavigation extends RelativeLayout {
             setBadgeToPosition(pos, value, animate);
     }
 
+    public void setBadgeToPosition(int position, int value) {
+        setBadgeToPosition(position, value, true);
+    }
     @SuppressLint("SetTextI18n")
     public void setBadgeToPosition(int position, int value, boolean animation) {
         RelativeLayout layout = getItemLayout(position);
