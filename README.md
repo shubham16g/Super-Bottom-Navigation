@@ -18,7 +18,7 @@ This is the best Bottom Navigation for Android.
 
 ### Add the library to the dependencies:
 ```
- implementation 'com.github.shubham-gupta-16:Super-Bottom-Navigation:1.0.0'
+ implementation 'com.github.shubham-gupta-16:Super-Bottom-Navigation:1.0.3'
   ```
 ## Docs
 
