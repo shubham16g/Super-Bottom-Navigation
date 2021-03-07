@@ -21,6 +21,7 @@ import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.MenuRes;
 
 import java.util.ArrayList;
@@ -148,7 +149,6 @@ public class SuperBottomNavigation extends RelativeLayout {
     private LinearLayout linearLayout;
     private View view;
     private List<ItemData> widthList;
-    private int size = 0;
     private int lastActive = 0;
     //    variables
     private int paddingRightDp , paddingLeftDp;
@@ -157,16 +157,35 @@ public class SuperBottomNavigation extends RelativeLayout {
     private int iconSize;
     private int textIconGap;
     private int animDuration = 300;
+    private Menu menu;
 
     public void setMenu(@MenuRes int menuRes) {
         PopupMenu p = new PopupMenu(getContext(), null);
-        Menu menu = p.getMenu();
+        menu = p.getMenu();
         new MenuInflater(getContext()).inflate(menuRes, menu);
-        size = menu.size();
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             createElement(i, item);
         }
+    }
+
+    private int getIdByPosition(int pos){
+        if (menu.size() > pos){
+            return menu.getItem(pos).getItemId();
+        }
+        return -1;
+    }
+
+    private int getPositionById(int id){
+        int pos = -1;
+        for (int i = 0; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            if (item.getItemId() == id){
+                pos = -i;
+                break;
+            }
+        }
+        return pos;
     }
 
 
@@ -217,7 +236,7 @@ public class SuperBottomNavigation extends RelativeLayout {
 //                getMeasurements(tv, getRootView());
 
                 animator(tv, 0, 0, 0);
-                if (pos == size - 1) {
+                if (pos == menu.size() - 1) {
                     selectItem((RelativeLayout) linearLayout.getChildAt(0), 0, 1);
                 }
             }
@@ -240,8 +259,20 @@ public class SuperBottomNavigation extends RelativeLayout {
         return lastActive;
     }
 
-    public void setItemActiveToPosition(int pos){
+    public int getActiveItem(){
+        return getIdByPosition(lastActive);
+    }
+
+    public void setActiveItem(@IdRes int id){
+        int pos = getPositionById(id);
+        if (pos != -1)
+            setActiveItemByPosition(pos);
+    }
+
+    public void setActiveItemByPosition(int pos){
         selectItem(getItemLayout(pos), pos, animDuration);
+        if (onItemSelectChangeListener != null)
+            onItemSelectChangeListener.onChange(getIdByPosition(pos), pos);
     }
 
     private void selectItem(RelativeLayout layout, int pos, int animDur) {
