@@ -14,7 +14,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -82,7 +84,7 @@ public class SuperBottomNavigation extends RelativeLayout {
         if (attrs != null) {
 
             int[] attributes = new int[]{android.R.attr.padding, android.R.attr.paddingLeft, android.R.attr.paddingRight,
-                    android.R.attr.paddingStart, android.R.attr.paddingEnd, android.R.attr.elevation };
+                    android.R.attr.paddingStart, android.R.attr.paddingEnd, android.R.attr.elevation};
 
             TypedArray androidAttrs = context.obtainStyledAttributes(attrs, attributes);
             mainPaddingLeft = androidAttrs.getDimensionPixelOffset(0, mainPaddingLeft);
@@ -91,8 +93,6 @@ public class SuperBottomNavigation extends RelativeLayout {
             mainPaddingRight = androidAttrs.getDimensionPixelOffset(2, mainPaddingRight);
             mainPaddingLeft = androidAttrs.getDimensionPixelOffset(3, mainPaddingLeft);
             mainPaddingRight = androidAttrs.getDimensionPixelOffset(4, mainPaddingRight);
-
-
 
 
             androidAttrs.recycle();
@@ -135,23 +135,14 @@ public class SuperBottomNavigation extends RelativeLayout {
         this.onItemSelectChangeListener = onItemSelectChangeListener;
     }
 
-    private static class ItemData {
-        int id, tvWidth;
 
-        public ItemData(int id, int tvWidth) {
-            this.id = id;
-            this.tvWidth = tvWidth;
-        }
-
-
-    }
 
     private LinearLayout linearLayout;
     private View view;
-    private List<ItemData> widthList;
+    private List<Integer> widthList;
     private int lastActive = 0;
     //    variables
-    private int paddingRightDp , paddingLeftDp;
+    private int paddingRightDp, paddingLeftDp;
     private float iconNonActiveAlpha = 0.6f;
     private float iconActiveAlpha = 1f;
     private int iconSize;
@@ -169,19 +160,26 @@ public class SuperBottomNavigation extends RelativeLayout {
         }
     }
 
-    private int getIdByPosition(int pos){
-        if (menu.size() > pos){
+    private int getIdByPosition(int pos) {
+        if (menu.size() > pos) {
             return menu.getItem(pos).getItemId();
         }
         return -1;
     }
 
-    private int getPositionById(int id){
+    private int getPositionById(int id) {
+//        for (int i = 0; i < widthList.size(); i++) {
+//            ItemData data = widthList.get(i);
+//            if (data.id == id) {
+////                setBadgeToPosition(i, value);
+//                break;
+//            }
+//        }
         int pos = -1;
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
-            if (item.getItemId() == id){
-                pos = -i;
+            if (item.getItemId() == id) {
+                pos = i;
                 break;
             }
         }
@@ -230,7 +228,7 @@ public class SuperBottomNavigation extends RelativeLayout {
             @Override
             public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 int width = right - left;
-                widthList.add(new ItemData(item.getItemId(), width));
+                widthList.add(width);
                 tv.removeOnLayoutChangeListener(this);
 
 //                getMeasurements(tv, getRootView());
@@ -255,21 +253,21 @@ public class SuperBottomNavigation extends RelativeLayout {
     }
 
 
-    public int getActiveItemPosition(){
+    public int getActiveItemPosition() {
         return lastActive;
     }
 
-    public int getActiveItem(){
+    public int getActiveItem() {
         return getIdByPosition(lastActive);
     }
 
-    public void setActiveItem(@IdRes int id){
+    public void setActiveItem(@IdRes int id) {
         int pos = getPositionById(id);
         if (pos != -1)
             setActiveItemByPosition(pos);
     }
 
-    public void setActiveItemByPosition(int pos){
+    public void setActiveItemByPosition(int pos) {
         selectItem(getItemLayout(pos), pos, animDuration);
         if (onItemSelectChangeListener != null)
             onItemSelectChangeListener.onChange(getIdByPosition(pos), pos);
@@ -285,7 +283,7 @@ public class SuperBottomNavigation extends RelativeLayout {
 
         tv.setAlpha(0);
         tv.animate().alpha(1).setDuration(animDuration).setStartDelay(animDuration * 5 / 8).start();
-        animator(tv, 0, widthList.get(pos).tvWidth, animDuration);
+        animator(tv, 0, widthList.get(pos), animDuration);
         positionSelector(pos, animDur);
     }
 
@@ -317,10 +315,10 @@ public class SuperBottomNavigation extends RelativeLayout {
     private void positionSelector(int pos, int animDuration) {
         int fullWidth = linearLayout.getWidth();
         int eachWidth = getEachItemWidth();
-        float subWidth = (eachWidth * widthList.size()) + widthList.get(pos).tvWidth;
+        float subWidth = (eachWidth * widthList.size()) + widthList.get(pos);
         float eachClearFixWidth = (fullWidth - subWidth) / (float) (widthList.size() - 1);
         int left = (int) (eachClearFixWidth * pos) + eachWidth * pos;
-        int width = eachWidth + widthList.get(pos).tvWidth;
+        int width = eachWidth + widthList.get(pos);
 //        Toast.makeText(getContext(), ""+ eachWidth + " _ " + subWidth + " - " + eachClearFixWidth, Toast.LENGTH_SHORT).show();
 
 //        Toast.makeText(getContext(), left + " - " + width, Toast.LENGTH_SHORT).show();
@@ -380,27 +378,77 @@ public class SuperBottomNavigation extends RelativeLayout {
     }
 
     public void setBadge(int id, int value) {
-        for (int i = 0; i < widthList.size(); i++) {
-            ItemData data = widthList.get(i);
-            if (data.id == id) {
-                setBadgeToPosition(i, value);
-            }
-        }
+        setBadge(id, value, true);
+    }
+
+    public void setBadge(int id, int value, boolean animate) {
+        int pos = getPositionById(id);
+        if (pos != -1)
+            setBadgeToPosition(pos, value, animate);
     }
 
     @SuppressLint("SetTextI18n")
-    public void setBadgeToPosition(int position, int value) {
+    public void setBadgeToPosition(int position, int value, boolean animation) {
         RelativeLayout layout = getItemLayout(position);
         TextView badge = (TextView) layout.getChildAt(2);
         if (value > 0) {
-            badge.setVisibility(VISIBLE);
+            if (badge.getVisibility() == INVISIBLE)
+                badge.setVisibility(VISIBLE);
             if (value < 100)
                 badge.setText(String.valueOf(value));
             else
                 badge.setText("99+");
+            if (animation)
+                scaleView(badge);
         } else {
             badge.setVisibility(INVISIBLE);
         }
+    }
+
+    public void scaleView(final View v) {
+        final int[] count = {2};
+        final ScaleAnimation fade_out = new ScaleAnimation(1.3f, 1f, 1.3f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        fade_out.setDuration(220);
+        fade_out.setFillAfter(true);
+        final ScaleAnimation fade_in = new ScaleAnimation(1f, 1.3f, 1f, 1.3f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        fade_in.setDuration(200);
+        fade_in.setFillAfter(true);
+        fade_in.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                v.startAnimation(fade_out);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        fade_out.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if (count[0] > 1) {
+                    v.startAnimation(fade_in);
+                    count[0]--;
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        v.startAnimation(fade_in);
     }
 
     private void addClearFix() {
