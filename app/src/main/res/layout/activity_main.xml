@@ -17,10 +17,9 @@
     <com.shubhamgupta16.superbottomnav.SuperBottomNavigation
         android:id="@+id/superBottomNav"
         android:layout_alignParentBottom="true"
-        android:background="#242739"
         android:layout_width="match_parent"
+        android:background="@android:color/white"
         app:menu_res="@menu/bottom_menu"
-        app:icon_size="24dp"
         android:layout_height="wrap_content"/>
 
 </RelativeLayout>

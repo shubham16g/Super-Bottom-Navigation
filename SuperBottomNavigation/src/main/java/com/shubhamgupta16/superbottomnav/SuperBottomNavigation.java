@@ -33,8 +33,8 @@ import java.util.List;
 public class SuperBottomNavigation extends RelativeLayout {
 
 
-    private int iconColor = Color.WHITE;
-    private int textColor = Color.WHITE;
+    private int iconColor = Color.BLACK;
+    private int textColor = Color.BLACK;
     private int badgeBackgroundColor = Color.RED;
     private int badgeTextColor = Color.WHITE;
 
