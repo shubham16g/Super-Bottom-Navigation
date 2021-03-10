@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
@@ -14,9 +15,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -218,12 +222,13 @@ public class SuperBottomNavigation extends RelativeLayout {
 //        also adding super_bottom_badge by creating it
         itemLayout.addView(createBadge());
 
-
-//all adding is here
+        //all adding is here
         if (pos != 0)
             addClearFix();
-
         linearLayout.addView(itemLayout);
+        if (pos != menu.size() - 1)
+            addClearFix();
+
         OnLayoutChangeListener listener = new OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View view, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -233,7 +238,7 @@ public class SuperBottomNavigation extends RelativeLayout {
 
 //                getMeasurements(tv, getRootView());
 
-                animator(tv, 0, 0, 0);
+                animator(tv, 0, 0, 0).start();
                 if (pos == menu.size() - 1) {
                     selectItem((RelativeLayout) linearLayout.getChildAt(0), 0, 1);
                 }
@@ -278,12 +283,12 @@ public class SuperBottomNavigation extends RelativeLayout {
 
         View iv = layout.getChildAt(0);
         View tv = layout.getChildAt(1);
-        iv.animate().alpha(iconNonActiveAlpha).setDuration(0).start();
+        iv.setAlpha(iconNonActiveAlpha);
         iv.animate().alpha(iconActiveAlpha).setDuration(animDuration).start();
 
         tv.setAlpha(0);
         tv.animate().alpha(1).setDuration(animDuration).setStartDelay(animDuration * 5 / 8).start();
-        animator(tv, 0, widthList.get(pos), animDuration);
+        animator(tv, 0, widthList.get(pos), animDuration).start();
         positionSelector(pos, animDur);
     }
 
@@ -293,17 +298,17 @@ public class SuperBottomNavigation extends RelativeLayout {
         View tv = layout.getChildAt(1);
         View iv = layout.getChildAt(0);
 
-        iv.animate().alpha(iconActiveAlpha).setDuration(0).start();
+        iv.setAlpha(iconActiveAlpha);
         iv.animate().alpha(iconNonActiveAlpha).setDuration(animDuration).start();
 
-        animator(tv, tv.getWidth(), 0, animDuration);
+        animator(tv, tv.getWidth(), 0, animDuration).start();
         tv.setAlpha(1);
         tv.animate().alpha(0).setDuration(animDuration / 2).setStartDelay(0).start();
         lastActive = currentPos;
     }
 
     private RelativeLayout getItemLayout(int position) {
-        int itsPos = position * 2;
+        int itsPos = position * 3;
         View v = linearLayout.getChildAt(itsPos);
         return (RelativeLayout) v;
     }
@@ -319,12 +324,7 @@ public class SuperBottomNavigation extends RelativeLayout {
         float eachClearFixWidth = (fullWidth - subWidth) / (float) (widthList.size() - 1);
         int left = (int) (eachClearFixWidth * pos) + eachWidth * pos;
         int width = eachWidth + widthList.get(pos);
-//        Toast.makeText(getContext(), ""+ eachWidth + " _ " + subWidth + " - " + eachClearFixWidth, Toast.LENGTH_SHORT).show();
-
-//        Toast.makeText(getContext(), left + " - " + width, Toast.LENGTH_SHORT).show();
-
-        view.animate().translationX(left).setDuration(animDuration).start();
-        animator(view, view.getWidth(), width, animDuration);
+        animator(view, view.getWidth(), width, animDuration, view.getTranslationX(), left).start();
     }
 
     private int dpToPx(int dp) {
@@ -340,11 +340,13 @@ public class SuperBottomNavigation extends RelativeLayout {
                 1,
                 r.getDisplayMetrics()
         );
-//        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-//        oneDP = (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
-    private void animator(final View view, int from, int to, int dur) {
+    private ValueAnimator animator(final View view, int from, int to, int dur) {
+        return animator(view, from, to, dur, -1, -1);
+    }
+
+    private ValueAnimator animator(final View view, int from, int to, int dur, final float current, final float left) {
         ValueAnimator widthAnimator = ValueAnimator.ofInt(from, to);
         widthAnimator.setDuration(dur);
         widthAnimator.setInterpolator(new DecelerateInterpolator());
@@ -352,10 +354,14 @@ public class SuperBottomNavigation extends RelativeLayout {
             @Override
             public void onAnimationUpdate(final ValueAnimator animation) {
                 view.getLayoutParams().width = (int) animation.getAnimatedValue();
+                if (current != -1f) {
+                    float translate = (left - current) * animation.getAnimatedFraction() + current;
+                    view.setTranslationX(translate);
+                }
                 view.requestLayout();
             }
         });
-        widthAnimator.start();
+        return widthAnimator;
     }
 
     private TextView createBadge() {
@@ -471,6 +477,30 @@ public class SuperBottomNavigation extends RelativeLayout {
         layoutParams.weight = 1;
         View clearFix = new View(getContext());
         clearFix.setLayoutParams(layoutParams);
+        clearFix.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int index = linearLayout.indexOfChild(view);
+                int realPos = (index + 1) % 3 == 0 ? (index + 1) : index - 1;
+                if (realPos / 3 == lastActive) {
+                    if (realPos < index)
+                        selectAndCallback((realPos / 3) + 1);
+                    else
+                        selectAndCallback((realPos / 3) - 1);
+
+                } else {
+                    selectAndCallback(realPos / 3);
+                }
+
+            }
+        });
         linearLayout.addView(clearFix);
+    }
+
+    private void selectAndCallback(int pos) {
+        selectItem(getItemLayout(pos), pos, animDuration);
+        if (onItemSelectChangeListener != null) {
+            onItemSelectChangeListener.onChange(menu.getItem(pos).getItemId(), pos);
+        }
     }
 }
