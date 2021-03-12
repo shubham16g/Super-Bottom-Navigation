@@ -63,10 +63,11 @@ public class SuperBottomNavigation extends RelativeLayout {
 //        initViews();
 
 //        default values
-        iconSize = dpToPx(24);
         textIconGap = dpToPx(6);
         paddingLeftDp = dpToPx(10);
         paddingRightDp = dpToPx(14);
+        iconSize = dpToPx(24);
+
         int mainPaddingLeft = dpToPx(10);
         int mainPaddingRight = dpToPx(10);
 
